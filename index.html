@@ -3724,7 +3724,42 @@ function renderSilhouetteCards() {
         });
         window.addEventListener('load', () => {
             if (window.PinUtils && window.PinUtils.build) window.PinUtils.build();
-        });    </script>
-  <script a sync defer src="https://assets.pinterest.com/js/pinit.js"></script>
+        });    </script> 
+<script a sync defer src="https://assets.pinterest.com/js/pinit.js"></script>
+       <style>
+        @media (max-width: 768px) {
+            /* 1. Images screen se bahar na jayein */
+            img {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+
+            /* 2. Containers ko screen ke andar rakhein */
+            .container, .row, .wrapper, section, main, div {
+                width: 100% !important;
+                max-width: 100vw !important;
+                box-sizing: border-box !important;
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+
+            /* 3. Flexbox ko ek ke neeche ek karein (Navbar etc.) */
+            .flex-container, .row, .d-flex, .nav-links {
+                flex-direction: column !important;
+                align-items: center !important;
+            }
+
+            /* 4. Text size theek karein */
+            h1 { font-size: 32px !important; }
+            h2 { font-size: 24px !important; }
+            p { font-size: 16px !important; }
+            
+            /* 5. Buttons theek karein */
+            a, button {
+                display: inline-block !important;
+                margin-bottom: 10px !important;
+            }
+        }
+    </style>
 </body>
 </html>
