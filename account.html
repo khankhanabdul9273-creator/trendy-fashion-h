@@ -29,6 +29,16 @@
                 </button>
             </div>
 
+            <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button type="button" data-auth-provider="google" class="py-3 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50">
+                    Continue with Google
+                </button>
+                <button type="button" data-auth-provider="facebook" class="py-3 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50">
+                    Continue with Facebook
+                </button>
+            </div>
+            <p id="social-auth-error" role="alert" class="hidden text-red-500 text-sm mb-4 text-center"></p>
+
             <!-- LOGIN FORM -->
             <div id="login-form-container">
                 <h1 class="text-2xl font-bold text-center mb-6">Welcome Back</h1>
@@ -284,6 +294,26 @@
 
         tabLogin.addEventListener('click', () => switchTab('login'));
         tabSignup.addEventListener('click', () => switchTab('signup'));
+
+        document.querySelectorAll('[data-auth-provider]').forEach(button => {
+            button.addEventListener('click', async () => {
+                const errorMessage = document.getElementById('social-auth-error');
+                errorMessage.classList.add('hidden');
+                button.disabled = true;
+                try {
+                    const { error } = await sb.auth.signInWithOAuth({
+                        provider: button.dataset.authProvider,
+                        options: { redirectTo: `${location.origin}${location.pathname}` }
+                    });
+                    if (error) throw error;
+                } catch (error) {
+                    console.error('Could not start social sign-in:', error);
+                    errorMessage.textContent = `${button.dataset.authProvider === 'google' ? 'Google' : 'Facebook'} sign-in could not start. Check that the provider is enabled in Supabase.`;
+                    errorMessage.classList.remove('hidden');
+                    button.disabled = false;
+                }
+            });
+        });
 
         document.getElementById('login-method-toggle').addEventListener('click', () => {
             loginMethod = loginMethod === 'email' ? 'phone' : 'email';

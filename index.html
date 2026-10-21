@@ -526,7 +526,7 @@
                         <span id="cart-count-badge" class="absolute -top-1 -right-1 bg-noir text-gold-300 text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
                     </button>
                     <!-- User Account / Login Button -->
-                    <a href="account.html" class="flex items-center gap-1.5 text-charcoal hover:text-gold-600 sm:pl-2 sm:border-l sm:border-gold-300" aria-label="Sign In">
+                    <a id="account-link" href="account.html" class="flex items-center gap-1.5 text-charcoal hover:text-gold-600 sm:pl-2 sm:border-l sm:border-gold-300" aria-label="Sign In">
                         <i data-lucide="user" class="w-4 h-4"></i>
                         <span id="user-display-name" class="hidden sm:inline text-[10px] xl:text-xs font-semibold uppercase tracking-wider whitespace-nowrap">Sign In</span>
                     </a>
@@ -1438,28 +1438,36 @@
 
     <!-- 8. AUTH / REGISTER / LOGIN MODAL -->
     <div id="auth-modal" class="fixed inset-0 z-50 bg-noir/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-gold-200">
+        <div class="bg-white w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl border border-gold-200">
             <div class="flex justify-between items-center pb-3 border-b border-gold-200">
-                <h3 class="font-serif text-xl font-bold text-noir">Client Privé Access</h3>
-                <button onclick="closeAuthModal()" class="text-gray-400 hover:text-charcoal"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <h3 class="font-serif text-xl font-bold text-noir">Sign in or create an account</h3>
+                <button type="button" onclick="closeAuthModal()" class="text-gray-400 hover:text-charcoal" aria-label="Close sign in"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form onsubmit="handleAuthSubmit(event)" class="mt-4 space-y-4 text-xs">
-                <div>
-                    <label class="block font-medium text-gray-700 mb-1">Full Name</label>
-                    <input type="text" id="auth-name" placeholder="Meera Kapoor" class="w-full p-2.5 bg-sand border border-gold-200 rounded focus:outline-none">
+            <p class="mt-4 text-xs text-gray-600">Continue with Google or Facebook, or verify your mobile number with a one-time code.</p>
+            <div class="mt-4 grid grid-cols-2 gap-2">
+                <button type="button" data-auth-provider="google" class="py-2.5 border border-gold-200 rounded text-xs font-semibold hover:bg-sand">Continue with Google</button>
+                <button type="button" data-auth-provider="facebook" class="py-2.5 border border-gold-200 rounded text-xs font-semibold hover:bg-sand">Continue with Facebook</button>
+            </div>
+            <div class="my-4 flex items-center gap-3 text-[10px] uppercase tracking-widest text-gray-400"><span class="h-px flex-1 bg-gold-200"></span>or mobile number<span class="h-px flex-1 bg-gold-200"></span></div>
+            <form id="store-auth-phone-form" class="space-y-3 text-xs">
+                <label for="store-auth-name" class="block font-medium text-gray-700">Name <span class="font-normal text-gray-400">(for new accounts)</span></label>
+                <input type="text" id="store-auth-name" autocomplete="name" maxlength="80" placeholder="Your full name" class="w-full p-2.5 bg-sand border border-gold-200 rounded">
+                <label for="store-auth-phone" class="block font-medium text-gray-700">Mobile number</label>
+                <div class="flex gap-2">
+                    <select id="store-auth-country-code" class="w-28 p-2.5 bg-white border border-gold-200 rounded" aria-label="Country calling code">
+                        <option value="+91">India (+91)</option><option value="+1">US/Canada (+1)</option><option value="+44">UK (+44)</option><option value="+971">UAE (+971)</option>
+                    </select>
+                    <input type="tel" id="store-auth-phone" inputmode="numeric" autocomplete="tel-national" required placeholder="Mobile number" class="min-w-0 flex-1 p-2.5 bg-sand border border-gold-200 rounded">
                 </div>
-                <div>
-                    <label class="block font-medium text-gray-700 mb-1">Email Address</label>
-                    <input type="email" id="auth-email" placeholder="meera@example.com" required class="w-full p-2.5 bg-sand border border-gold-200 rounded focus:outline-none">
+                <button id="store-auth-send-otp" type="button" class="w-full py-2.5 border border-noir text-noir font-semibold rounded hover:bg-sand">Send SMS code</button>
+                <div id="store-auth-otp-step" class="hidden space-y-3">
+                    <label for="store-auth-otp" class="block font-medium text-gray-700">6-digit verification code</label>
+                    <input type="text" id="store-auth-otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="Enter code" class="w-full p-2.5 bg-sand border border-gold-200 rounded tracking-widest">
+                    <button id="store-auth-verify-otp" type="submit" class="w-full py-3 bg-noir text-gold-300 font-semibold uppercase tracking-wider rounded hover:bg-gold-600 hover:text-noir">Verify and continue</button>
                 </div>
-                <div>
-                    <label class="block font-medium text-gray-700 mb-1">VIP Passcode</label>
-                    <input type="password" placeholder="••••••••" required class="w-full p-2.5 bg-sand border border-gold-200 rounded focus:outline-none">
-                </div>
-                <button type="submit" class="w-full py-3 bg-noir text-gold-300 font-semibold uppercase tracking-wider rounded hover:bg-gold-600 hover:text-noir transition-colors">
-                    Access Private Account
-                </button>
             </form>
+            <p id="store-auth-message" role="status" aria-live="polite" class="mt-3 text-xs"></p>
+            <a href="account.html" class="block mt-4 text-center text-xs text-gray-600 underline">View account and orders</a>
         </div>
     </div>
 
@@ -1713,7 +1721,7 @@
                 { id: "AV-88410", client: "Ananya Sharma", total: 24500, payment: "Card (Razorpay)", status: "Tailoring in Progress" },
                 { id: "AV-87302", client: "Tara Singhania", total: 14900, payment: "Cash on Delivery", status: "Delivered" }
             ],
-            user: JSON.parse(localStorage.getItem('av_user')) || null,
+            user: null,
             activeCategory: 'All',
             activeSubCategory: null,
             activeOccasion: 'All',
@@ -3024,16 +3032,6 @@
         function closeAuthModal() {
             document.getElementById('auth-modal').classList.add('opacity-0', 'pointer-events-none');
         }
-        function handleAuthSubmit(e) {
-            e.preventDefault();
-            const name = document.getElementById('auth-name').value || 'Meera';
-            state.user = { name: name };
-            localStorage.setItem('av_user', JSON.stringify(state.user));
-            document.getElementById('user-display-name').innerText = name.split(' ')[0];
-            closeAuthModal();
-            showToast(`Welcome to MODERN DRESSES Privé, ${name}`);
-        }
-
         function openSizeGuideModal() {
             document.getElementById('size-modal').classList.remove('opacity-0', 'pointer-events-none');
         }
@@ -3430,16 +3428,14 @@
            12. LIFECYCLE INITIALIZATION
         ================================================================ */
         document.addEventListener('DOMContentLoaded', async () => {
-    applyStoreSettings();
-    await loadProductsFromSupabase();
-            await loadReviewsFromSupabase();
-            subscribeToProductReviews();
-            updateCartBadges();
-    if (state.user) {
-        document.getElementById('user-display-name').innerText = state.user.name.split(' ')[0];
-    }
-    lucide.createIcons();
-});
+            applyStoreSettings();
+            await loadProductsFromSupabase();
+                    await loadReviewsFromSupabase();
+                    subscribeToProductReviews();
+                    updateCartBadges();
+            initializeStoreAuth();
+            lucide.createIcons();
+        });
 window.addEventListener('storage', event => {
     if (event.key !== 'av_orders') return;
     const updatedOrders = JSON.parse(event.newValue || '[]');
@@ -3460,6 +3456,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_gp2idPt3RKuPnHBJZW3rrQ_grPn8T9e';
 
 let supabaseClient = null;
 let productReviewsChannel = null;
+let pendingStoreAuthPhone = null;
 
 function getSupabaseClient() {
     if (typeof supabase === 'undefined') {
@@ -3470,6 +3467,149 @@ function getSupabaseClient() {
     }
     return supabaseClient;
 }
+
+function setStoreAuthMessage(message, isError = false) {
+    const element = document.getElementById('store-auth-message');
+    element.textContent = message;
+    element.className = `mt-3 text-xs ${isError ? 'text-red-600' : 'text-gray-600'}`;
+}
+
+function updateStoreAuthUser(user) {
+    const accountLink = document.getElementById('account-link');
+    const userDisplayName = document.getElementById('user-display-name');
+    if (!accountLink || !userDisplayName) return;
+    if (!user) {
+        state.user = null;
+        userDisplayName.textContent = 'Sign In';
+        accountLink.setAttribute('aria-label', 'Sign In');
+        return;
+    }
+
+    const metadata = user.user_metadata || {};
+    const name = String(metadata.full_name || metadata.name || user.email?.split('@')[0] || user.phone || 'Account').trim();
+    state.user = { id: user.id, name, email: user.email || '', phone: user.phone || '' };
+    userDisplayName.textContent = `Hi, ${name.split(/\s+/)[0]}`;
+    accountLink.setAttribute('aria-label', `My account: ${name}`);
+}
+
+function initializeStoreAuth() {
+    let client;
+    try {
+        client = getSupabaseClient();
+    } catch (error) {
+        console.error('Could not initialize customer sign-in:', error);
+        setStoreAuthMessage('Sign-in is temporarily unavailable. Please try again later.', true);
+        return;
+    }
+
+    client.auth.onAuthStateChange((event, session) => {
+        updateStoreAuthUser(session?.user || null);
+        if (event === 'SIGNED_IN' && session?.user) {
+            const name = session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || session.user.phone || 'there';
+            closeAuthModal();
+            showToast(`Welcome, ${name}.`);
+        }
+    });
+    client.auth.getSession().then(({ data, error }) => {
+        if (error) {
+            console.error('Could not restore customer sign-in:', error);
+            setStoreAuthMessage('Could not restore your sign-in. Please try again.', true);
+            return;
+        }
+        updateStoreAuthUser(data.session?.user || null);
+    });
+}
+
+async function startSocialSignIn(provider) {
+    setStoreAuthMessage('');
+    try {
+        const { error } = await getSupabaseClient().auth.signInWithOAuth({
+            provider,
+            options: { redirectTo: window.location.href }
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.error(`Could not start ${provider} sign-in:`, error);
+        setStoreAuthMessage(`${provider === 'google' ? 'Google' : 'Facebook'} sign-in could not start. Check that this provider is enabled in the store's Supabase settings.`, true);
+    }
+}
+
+async function sendStoreAuthOtp() {
+    const button = document.getElementById('store-auth-send-otp');
+    const phoneDigits = document.getElementById('store-auth-phone').value.replace(/\D/g, '');
+    const countryCode = document.getElementById('store-auth-country-code').value;
+    if (phoneDigits.length < 7 || phoneDigits.length > 15) {
+        setStoreAuthMessage('Enter a valid mobile number.', true);
+        return;
+    }
+    const phone = `${countryCode}${phoneDigits}`;
+    const name = document.getElementById('store-auth-name').value.trim();
+    button.disabled = true;
+    const originalText = button.textContent;
+    button.textContent = 'Sending code...';
+    setStoreAuthMessage('');
+    try {
+        const { error } = await getSupabaseClient().auth.signInWithOtp({
+            phone,
+            options: { shouldCreateUser: true, data: name ? { full_name: name } : {} }
+        });
+        if (error) throw error;
+        pendingStoreAuthPhone = phone;
+        document.getElementById('store-auth-otp-step').classList.remove('hidden');
+        document.getElementById('store-auth-otp').focus();
+        setStoreAuthMessage(`A verification code was sent by SMS to ${phone}.`);
+    } catch (error) {
+        console.error('Could not send mobile verification code:', error);
+        setStoreAuthMessage(error.message || 'Could not send the verification code. Please try again.', true);
+    } finally {
+        button.disabled = false;
+        button.textContent = originalText;
+    }
+}
+
+async function verifyStoreAuthOtp(event) {
+    event.preventDefault();
+    if (!pendingStoreAuthPhone) {
+        setStoreAuthMessage('Request a verification code first.', true);
+        return;
+    }
+    const token = document.getElementById('store-auth-otp').value.trim();
+    if (!/^\d{6}$/.test(token)) {
+        setStoreAuthMessage('Enter the 6-digit verification code.', true);
+        return;
+    }
+    const button = document.getElementById('store-auth-verify-otp');
+    button.disabled = true;
+    button.textContent = 'Verifying...';
+    setStoreAuthMessage('');
+    try {
+        const { error } = await getSupabaseClient().auth.verifyOtp({
+            phone: pendingStoreAuthPhone,
+            token,
+            type: 'sms'
+        });
+        if (error) throw error;
+        pendingStoreAuthPhone = null;
+    } catch (error) {
+        console.error('Could not verify mobile sign-in code:', error);
+        setStoreAuthMessage(error.message || 'The code could not be verified. Please check it and try again.', true);
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Verify and continue';
+    }
+}
+
+document.getElementById('store-auth-phone-form').addEventListener('submit', verifyStoreAuthOtp);
+document.getElementById('store-auth-send-otp').addEventListener('click', sendStoreAuthOtp);
+document.querySelectorAll('[data-auth-provider]').forEach(button => {
+    button.addEventListener('click', () => startSocialSignIn(button.dataset.authProvider));
+});
+document.getElementById('account-link').addEventListener('click', event => {
+    if (!state.user) {
+        event.preventDefault();
+        openAuthModal();
+    }
+});
 
 function mapServerReview(row) {
     return {
@@ -3700,15 +3840,7 @@ function renderSilhouetteCards() {
         // CUSTOMER NAME DISPLAY
         // ============================================
         function updateCustomerNameDisplay() {
-            const customerName = localStorage.getItem('customer_name');
-            const userDisplayName = document.getElementById('user-display-name');
-            
-            if (customerName && userDisplayName) {
-                const firstName = customerName.split(' ')[0];
-                userDisplayName.textContent = 'Hi, ' + firstName;
-            } else if (userDisplayName) {
-                userDisplayName.textContent = 'Sign In';
-            }
+            updateStoreAuthUser(state.user ? { id: state.user.id, user_metadata: { full_name: state.user.name }, email: state.user.email, phone: state.user.phone } : null);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
