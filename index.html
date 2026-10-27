@@ -1443,12 +1443,36 @@
                 <h3 class="font-serif text-xl font-bold text-noir">Sign in or create an account</h3>
                 <button type="button" onclick="closeAuthModal()" class="text-gray-400 hover:text-charcoal" aria-label="Close sign in"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <p class="mt-4 text-xs text-gray-600">Continue with Google or Facebook, or verify your mobile number with a one-time code.</p>
+            <p class="mt-4 text-xs text-gray-600">Sign in or create an account with your email, or use a one-time code on your mobile.</p>
+            <div class="mt-4 flex border-b border-gold-200">
+                <button id="store-auth-tab-login" type="button" class="flex-1 border-b-2 border-noir py-2 text-sm font-semibold text-noir">Log in</button>
+                <button id="store-auth-tab-signup" type="button" class="flex-1 border-b-2 border-transparent py-2 text-sm font-semibold text-gray-500">Sign up</button>
+            </div>
             <div class="mt-4 grid grid-cols-2 gap-2">
                 <button type="button" data-auth-provider="google" class="py-2.5 border border-gold-200 rounded text-xs font-semibold hover:bg-sand">Continue with Google</button>
                 <button type="button" data-auth-provider="facebook" class="py-2.5 border border-gold-200 rounded text-xs font-semibold hover:bg-sand">Continue with Facebook</button>
             </div>
-            <div class="my-4 flex items-center gap-3 text-[10px] uppercase tracking-widest text-gray-400"><span class="h-px flex-1 bg-gold-200"></span>or mobile number<span class="h-px flex-1 bg-gold-200"></span></div>
+            <div id="store-auth-email-forms" class="mt-4">
+                <form id="store-auth-login-form" class="space-y-3 text-xs">
+                    <label for="store-auth-login-email" class="block font-medium text-gray-700">Email</label>
+                    <input type="email" id="store-auth-login-email" autocomplete="email" required placeholder="Your email address" class="w-full p-2.5 bg-sand border border-gold-200 rounded">
+                    <label for="store-auth-login-password" class="block font-medium text-gray-700">Password</label>
+                    <input type="password" id="store-auth-login-password" autocomplete="current-password" required placeholder="Your password" class="w-full p-2.5 bg-sand border border-gold-200 rounded">
+                    <button type="submit" class="w-full py-2.5 bg-noir text-gold-300 font-semibold rounded hover:bg-gold-600 hover:text-noir">Log in</button>
+                </form>
+                <form id="store-auth-signup-form" class="hidden space-y-3 text-xs">
+                    <label for="store-auth-signup-name" class="block font-medium text-gray-700">Full name</label>
+                    <input type="text" id="store-auth-signup-name" autocomplete="name" maxlength="80" required placeholder="Your full name" class="w-full p-2.5 bg-sand border border-gold-200 rounded">
+                    <label for="store-auth-signup-email" class="block font-medium text-gray-700">Email</label>
+                    <input type="email" id="store-auth-signup-email" autocomplete="email" required placeholder="Your email address" class="w-full p-2.5 bg-sand border border-gold-200 rounded">
+                    <label for="store-auth-signup-password" class="block font-medium text-gray-700">Password</label>
+                    <input type="password" id="store-auth-signup-password" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters" class="w-full p-2.5 bg-sand border border-gold-200 rounded">
+                    <button type="submit" class="w-full py-2.5 bg-noir text-gold-300 font-semibold rounded hover:bg-gold-600 hover:text-noir">Create account</button>
+                </form>
+            </div>
+            <button id="store-auth-phone-toggle" type="button" class="mt-3 w-full text-center text-xs underline">Use mobile OTP instead</button>
+            <div id="store-auth-phone-area" class="hidden">
+            <div class="my-4 flex items-center gap-3 text-[10px] uppercase tracking-widest text-gray-400"><span class="h-px flex-1 bg-gold-200"></span>mobile number<span class="h-px flex-1 bg-gold-200"></span></div>
             <form id="store-auth-phone-form" class="space-y-3 text-xs">
                 <label for="store-auth-name" class="block font-medium text-gray-700">Name <span class="font-normal text-gray-400">(for new accounts)</span></label>
                 <input type="text" id="store-auth-name" autocomplete="name" maxlength="80" placeholder="Your full name" class="w-full p-2.5 bg-sand border border-gold-200 rounded">
@@ -1466,6 +1490,7 @@
                     <button id="store-auth-verify-otp" type="submit" class="w-full py-3 bg-noir text-gold-300 font-semibold uppercase tracking-wider rounded hover:bg-gold-600 hover:text-noir">Verify and continue</button>
                 </div>
             </form>
+            </div>
             <p id="store-auth-message" role="status" aria-live="polite" class="mt-3 text-xs"></p>
             <a href="account.html" class="block mt-4 text-center text-xs text-gray-600 underline">View account and orders</a>
         </div>
@@ -3474,6 +3499,25 @@ function setStoreAuthMessage(message, isError = false) {
     element.className = `mt-3 text-xs ${isError ? 'text-red-600' : 'text-gray-600'}`;
 }
 
+function setStoreAuthMode(mode) {
+    const isLogin = mode === 'login';
+    document.getElementById('store-auth-login-form').classList.toggle('hidden', !isLogin);
+    document.getElementById('store-auth-signup-form').classList.toggle('hidden', isLogin);
+    document.getElementById('store-auth-tab-login').className = `flex-1 border-b-2 py-2 text-sm font-semibold ${isLogin ? 'border-noir text-noir' : 'border-transparent text-gray-500'}`;
+    document.getElementById('store-auth-tab-signup').className = `flex-1 border-b-2 py-2 text-sm font-semibold ${isLogin ? 'border-transparent text-gray-500' : 'border-noir text-noir'}`;
+    setStoreAuthMessage('');
+}
+
+function setStoreAuthMethod(method) {
+    const usePhone = method === 'phone';
+    document.getElementById('store-auth-email-forms').classList.toggle('hidden', usePhone);
+    document.getElementById('store-auth-phone-area').classList.toggle('hidden', !usePhone);
+    document.getElementById('store-auth-phone-toggle').textContent = usePhone
+        ? 'Use email and password instead'
+        : 'Use mobile OTP instead';
+    setStoreAuthMessage('');
+}
+
 function updateStoreAuthUser(user) {
     const accountLink = document.getElementById('account-link');
     const userDisplayName = document.getElementById('user-display-name');
@@ -3531,6 +3575,43 @@ async function startSocialSignIn(provider) {
     } catch (error) {
         console.error(`Could not start ${provider} sign-in:`, error);
         setStoreAuthMessage(`${provider === 'google' ? 'Google' : 'Facebook'} sign-in could not start. Check that this provider is enabled in the store's Supabase settings.`, true);
+    }
+}
+
+async function submitStoreEmailAuth(event, mode) {
+    event.preventDefault();
+    const button = event.currentTarget.querySelector('button[type="submit"]');
+    const originalText = button.textContent;
+    button.disabled = true;
+    button.textContent = mode === 'login' ? 'Logging in...' : 'Creating account...';
+    setStoreAuthMessage('');
+    try {
+        const email = document.getElementById(`store-auth-${mode}-email`).value.trim();
+        const password = document.getElementById(`store-auth-${mode}-password`).value;
+        if (mode === 'login') {
+            const { error } = await getSupabaseClient().auth.signInWithPassword({ email, password });
+            if (error) throw error;
+        } else {
+            const fullName = document.getElementById('store-auth-signup-name').value.trim();
+            const { data, error } = await getSupabaseClient().auth.signUp({
+                email,
+                password,
+                options: {
+                    data: { full_name: fullName },
+                    emailRedirectTo: window.location.href
+                }
+            });
+            if (error) throw error;
+            if (!data.session) {
+                setStoreAuthMessage('Account created. Check your email to confirm your address, then log in.');
+            }
+        }
+    } catch (error) {
+        console.error(`Could not ${mode === 'login' ? 'log in' : 'create an account'} with email:`, error);
+        setStoreAuthMessage(error.message || 'Authentication failed. Please try again.', true);
+    } finally {
+        button.disabled = false;
+        button.textContent = originalText;
     }
 }
 
@@ -3601,9 +3682,19 @@ async function verifyStoreAuthOtp(event) {
 
 document.getElementById('store-auth-phone-form').addEventListener('submit', verifyStoreAuthOtp);
 document.getElementById('store-auth-send-otp').addEventListener('click', sendStoreAuthOtp);
+document.getElementById('store-auth-login-form').addEventListener('submit', event => submitStoreEmailAuth(event, 'login'));
+document.getElementById('store-auth-signup-form').addEventListener('submit', event => submitStoreEmailAuth(event, 'signup'));
+document.getElementById('store-auth-tab-login').addEventListener('click', () => setStoreAuthMode('login'));
+document.getElementById('store-auth-tab-signup').addEventListener('click', () => setStoreAuthMode('signup'));
+document.getElementById('store-auth-phone-toggle').addEventListener('click', () => {
+    const phoneArea = document.getElementById('store-auth-phone-area');
+    setStoreAuthMethod(phoneArea.classList.contains('hidden') ? 'phone' : 'email');
+});
 document.querySelectorAll('[data-auth-provider]').forEach(button => {
     button.addEventListener('click', () => startSocialSignIn(button.dataset.authProvider));
 });
+setStoreAuthMode('login');
+setStoreAuthMethod('email');
 document.getElementById('account-link').addEventListener('click', event => {
     if (!state.user) {
         event.preventDefault();
