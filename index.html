@@ -1351,8 +1351,9 @@
             </div>
 
             <div class="p-6 bg-white border-t border-gold-200 flex justify-end gap-3">
+                <p id="checkout-order-error" role="alert" class="mr-auto hidden self-center text-xs text-red-600"></p>
                 <button onclick="closeCheckoutModal()" class="px-5 py-3 border border-gray-300 text-charcoal text-xs uppercase font-semibold rounded">Cancel</button>
-                <button onclick="submitOrderSimulation()" class="px-8 py-3 bg-noir hover:bg-gold-600 text-gold-300 hover:text-noir text-xs uppercase font-bold tracking-widest rounded shadow-xl transition-all">
+                <button id="place-order-button" onclick="submitOrderSimulation()" class="px-8 py-3 bg-noir hover:bg-gold-600 text-gold-300 hover:text-noir text-xs uppercase font-bold tracking-widest rounded shadow-xl transition-all">
                     Authorize &amp; Place Order
                 </button>
             </div>
@@ -2821,7 +2822,7 @@
             modal.classList.add('opacity-0', 'pointer-events-none');
         }
 
-        function submitOrderSimulation() {
+        async function submitOrderSimulation() {
             const checkoutFields = [
                 'chk-fname', 'chk-lname', 'chk-email', 'chk-phone',
                 'chk-address', 'chk-city', 'chk-state', 'chk-postal-code', 'chk-country'
@@ -2831,67 +2832,97 @@
                 invalidField.reportValidity();
                 return;
             }
+            if (!state.cart.length) {
+                showToast('Your cart is empty.');
+                return;
+            }
 
-            const fname = document.getElementById('chk-fname').value.trim();
-            const lname = document.getElementById('chk-lname').value.trim();
-            const phone = document.getElementById('chk-phone').value.trim();
-            const shippingAddress = {
-                street: document.getElementById('chk-address').value.trim(),
-                city: document.getElementById('chk-city').value.trim(),
-                region: document.getElementById('chk-state').value.trim(),
-                postalCode: document.getElementById('chk-postal-code').value.trim(),
-                country: document.getElementById('chk-country').value.trim(),
-                coordinates: checkoutCoordinates
-            };
-            let orderId;
-            do {
-                orderId = `AV-${Math.floor(10000 + Math.random() * 90000)}`;
-            } while (state.orders.some(order => order.id === orderId));
-            const subtotal = state.cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-            const total = subtotal;
-            const createdAt = new Date().toISOString();
+            const placeOrderButton = document.getElementById('place-order-button');
+            const orderError = document.getElementById('checkout-order-error');
+            placeOrderButton.disabled = true;
+            placeOrderButton.textContent = 'Saving order...';
+            orderError.textContent = '';
+            orderError.classList.add('hidden');
 
-            const newOrder = {
-                id: orderId,
-                client: `${fname} ${lname}`.trim(),
-                phone,
-                total: total,
-                payment: "UPI Verified",
-                status: "Order Placed",
-                createdAt,
-                updatedAt: createdAt,
-                shippingAddress,
-                trackingHistory: [{ status: "Order Placed", at: createdAt }],
-                items: state.cart.map(item => ({
-                    id: item.id,
-                    title: item.title,
-                    img: item.img,
-                    price: Number(item.price) || 0,
-                    qty: Number(item.qty) || 1,
-                    selectedSize: item.selectedSize || '',
-                    selectedColor: item.selectedColor || ''
-                })),
-                productIds: state.cart.map(item => item.id)
-            };
+            try {
+                const fname = document.getElementById('chk-fname').value.trim();
+                const lname = document.getElementById('chk-lname').value.trim();
+                const phone = document.getElementById('chk-phone').value.trim();
+                const shippingAddress = {
+                    street: document.getElementById('chk-address').value.trim(),
+                    city: document.getElementById('chk-city').value.trim(),
+                    region: document.getElementById('chk-state').value.trim(),
+                    postalCode: document.getElementById('chk-postal-code').value.trim(),
+                    country: document.getElementById('chk-country').value.trim(),
+                    coordinates: checkoutCoordinates
+                };
+                let orderId;
+                do {
+                    orderId = `AV-${Math.floor(10000 + Math.random() * 90000)}`;
+                } while (state.orders.some(order => order.id === orderId));
+                const subtotal = state.cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+                const total = subtotal;
+                const createdAt = new Date().toISOString();
 
-            state.orders.unshift(newOrder);
-            saveOrders();
+                const newOrder = {
+                    id: orderId,
+                    client: `${fname} ${lname}`.trim(),
+                    phone,
+                    total: total,
+                    payment: "UPI Verified",
+                    status: "Order Placed",
+                    createdAt,
+                    updatedAt: createdAt,
+                    shippingAddress,
+                    trackingHistory: [{ status: "Order Placed", at: createdAt }],
+                    items: state.cart.map(item => ({
+                        id: item.id,
+                        title: item.title,
+                        img: item.img,
+                        price: Number(item.price) || 0,
+                        qty: Number(item.qty) || 1,
+                        selectedSize: item.selectedSize || '',
+                        selectedColor: item.selectedColor || ''
+                    })),
+                    productIds: state.cart.map(item => item.id)
+                };
 
-            // Clear Cart
-            state.cart = [];
-            saveCart();
-            updateCartBadges();
-            checkoutCoordinates = null;
+                const currentUser = state.user;
+                if (currentUser?.id) {
+                    const { error } = await getSupabaseClient().from('orders').insert([{
+                        user_id: currentUser.id,
+                        product_name: newOrder.items.map(item => item.title).filter(Boolean).join(', '),
+                        phone_number: phone
+                    }]);
+                    if (error) throw error;
+                }
 
-            closeCheckoutModal();
+                state.orders.unshift(newOrder);
+                saveOrders();
 
-            // Show Success Modal
-            document.getElementById('confirmed-order-id').innerText = `#${orderId}`;
-            document.getElementById('confirmed-order-date').innerText = formatTrackingDate(createdAt, true);
-            document.getElementById('confirmed-delivery-date').innerText = getEstimatedDelivery(createdAt);
-            const successModal = document.getElementById('order-success-modal');
-            successModal.classList.remove('opacity-0', 'pointer-events-none');
-            openOrderReviewModal(orderId);
+                // Clear Cart
+                state.cart = [];
+                saveCart();
+                updateCartBadges();
+                checkoutCoordinates = null;
+
+                closeCheckoutModal();
+
+                // Show Success Modal
+                document.getElementById('confirmed-order-id').innerText = `#${orderId}`;
+                document.getElementById('confirmed-order-date').innerText = formatTrackingDate(createdAt, true);
+                document.getElementById('confirmed-delivery-date').innerText = getEstimatedDelivery(createdAt);
+                const successModal = document.getElementById('order-success-modal');
+                successModal.classList.remove('opacity-0', 'pointer-events-none');
+                openOrderReviewModal(orderId);
+            } catch (error) {
+                console.error('Could not save the order:', error);
+                orderError.textContent = 'Order could not be saved. Please try again.';
+                orderError.classList.remove('hidden');
+            } finally {
+                placeOrderButton.disabled = false;
+                placeOrderButton.textContent = 'Authorize & Place Order';
+            }
         }
 
         function closeSuccessModal() {
@@ -3459,7 +3490,17 @@
                     subscribeToProductReviews();
                     updateCartBadges();
             initializeStoreAuth();
-            lucide.createIcons();
+                    lucide.createIcons();
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const authParams = new URLSearchParams(window.location.search);
+            if (authParams.get('auth') !== 'required') return;
+
+            openAuthModal();
+            setStoreAuthMessage(authParams.get('authError') === '1'
+                ? 'Could not verify your sign-in. Please log in to continue.'
+                : 'Please log in to view your account.');
+            window.history.replaceState(null, '', `${window.location.pathname}${window.location.hash}`);
         });
 window.addEventListener('storage', event => {
     if (event.key !== 'av_orders') return;

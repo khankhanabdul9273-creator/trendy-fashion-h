@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Account — MODERN DRESS WEAR</title>
+    <title>My Profile — MODERN DRESS WEAR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-50 font-sans antialiased">
 
-    <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-200">
+    <main class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-3xl border border-gray-200">
 
             <div class="flex items-center justify-between gap-3 mb-5">
                 <a href="index.html" class="text-sm font-medium text-gray-600 hover:text-black">← Back to store</a>
@@ -19,66 +19,45 @@
                 </button>
             </div>
 
-            <!-- TABS: LOGIN / SIGNUP -->
-            <div class="flex border-b border-gray-200 mb-6">
-                <button id="tab-login" class="flex-1 py-3 text-center font-semibold border-b-2 border-black text-black">
-                    Login
-                </button>
-                <button id="tab-signup" class="flex-1 py-3 text-center font-semibold border-b-2 border-transparent text-gray-500">
-                    Sign Up
-                </button>
-            </div>
+            <p id="auth-check-message" role="status" class="py-12 text-center text-sm text-gray-600">Checking your sign-in...</p>
 
-            <!-- LOGIN FORM -->
-            <div id="login-form-container">
-                <h1 class="text-2xl font-bold text-center mb-6">Welcome Back</h1>
-                <form id="login-password-form" class="space-y-4">
-                    <label for="login-password-email" class="block text-sm font-medium">Gmail / Email</label>
-                    <input type="email" id="login-password-email" autocomplete="email" placeholder="Gmail / Email" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
-                    <label for="login-password-value" class="block text-sm font-medium">Password</label>
-                    <input type="password" id="login-password-value" autocomplete="current-password" placeholder="Password" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
-                    <button type="submit" class="w-full py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800">Login</button>
-                </form>
-                <p id="login-error" role="alert" class="text-red-500 text-sm mt-3 text-center hidden"></p>
-                <p id="login-success" role="status" class="text-green-600 text-sm mt-3 text-center hidden"></p>
-            </div>
-
-            <!-- SIGNUP FORM -->
-            <div id="signup-form-container" class="hidden">
-                <h1 class="text-2xl font-bold text-center mb-6">Create Account</h1>
-                <form id="signup-password-form" class="space-y-4">
-                    <label for="signup-password-email" class="block text-sm font-medium">Gmail / Email</label>
-                    <input type="email" id="signup-password-email" autocomplete="email" placeholder="Gmail / Email" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
-                    <label for="signup-password-value" class="block text-sm font-medium">Password</label>
-                    <input type="password" id="signup-password-value" autocomplete="new-password" minlength="8" placeholder="Password (at least 8 characters)" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
-                    <button type="submit" class="w-full py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800">Create Account</button>
-                </form>
-                <p id="signup-error" role="alert" class="text-red-500 text-sm mt-3 text-center hidden"></p>
-                <p id="signup-success" role="status" class="text-green-600 text-sm mt-3 text-center hidden"></p>
-            </div>
-
-            <!-- LOGGED-IN DASHBOARD -->
+            <!-- PROFILE PAGE -->
             <div id="dashboard" class="hidden">
-                <h1 class="text-2xl font-bold mb-6">My Account</h1>
-                <div class="space-y-4">
-                    <p id="dashboard-error" role="alert" class="hidden text-sm text-red-600"></p>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-xs text-gray-500 uppercase">Name</p>
-                        <p id="user-name" class="font-semibold"></p>
+                <div class="mb-6 border-b border-gray-200 pb-5">
+                    <p class="text-sm font-semibold uppercase tracking-wider text-gray-500">Account</p>
+                    <h1 class="mt-1 text-3xl font-bold">My Profile</h1>
+                    <p class="mt-2 text-sm text-gray-600">Your account information and order history.</p>
+                </div>
+                <p id="dashboard-error" role="alert" class="hidden mb-4 text-sm text-red-600"></p>
+                <section class="rounded-2xl border border-gray-200 p-5 sm:p-6" aria-labelledby="profile-details-heading">
+                    <div class="flex items-center gap-4 border-b border-gray-100 pb-5">
+                        <div id="profile-avatar" aria-hidden="true" class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gray-900 text-xl font-bold uppercase text-white"></div>
+                        <div class="min-w-0">
+                            <h2 id="profile-details-heading" class="text-xl font-bold">Profile details</h2>
+                            <p id="profile-summary-email" class="mt-1 break-all text-sm text-gray-600"></p>
+                        </div>
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-xs text-gray-500 uppercase">Email</p>
-                        <p id="user-email" class="font-semibold"></p>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-xs text-gray-500 uppercase">Phone</p>
-                        <p id="user-phone" class="font-semibold"></p>
-                    </div>
+                    <dl class="mt-5 grid gap-4 sm:grid-cols-2">
+                        <div class="rounded-xl bg-gray-50 p-4">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Full name</dt>
+                            <dd id="user-name" class="mt-1 break-words font-semibold text-gray-900"></dd>
+                        </div>
+                        <div class="rounded-xl bg-gray-50 p-4">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Email address</dt>
+                            <dd id="user-email" class="mt-1 break-all font-semibold text-gray-900"></dd>
+                        </div>
+                        <div class="rounded-xl bg-gray-50 p-4 sm:col-span-2">
+                            <dt class="text-xs font-semibold uppercase tracking-wide text-gray-500">Phone number</dt>
+                            <dd id="user-phone" class="mt-1 font-semibold text-gray-900"></dd>
+                        </div>
+                    </dl>
+                </section>
+                <div class="mt-8 space-y-4">
                     <section class="pt-2" aria-labelledby="my-orders-heading">
                         <div class="flex items-center justify-between gap-3 mb-3">
                             <div>
                                 <h2 id="my-orders-heading" class="text-xl font-bold">My Orders</h2>
-                                <p class="text-xs text-gray-500 mt-1">Products ordered with this verified mobile number.</p>
+                                <p class="text-xs text-gray-500 mt-1">Orders linked to your signed-in account.</p>
                             </div>
                             <button id="refresh-orders-btn" type="button" class="text-xs font-semibold underline">Refresh</button>
                         </div>
@@ -91,7 +70,7 @@
             </div>
 
         </div>
-    </div>
+    </main>
 
     <script>
         // ============================================
@@ -101,45 +80,15 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_gp2idPt3RKuPnHBJZW3rrQ_grPn8T9e';
 
         const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUserId = null;
 
-        const tabLogin = document.getElementById('tab-login');
-        const tabSignup = document.getElementById('tab-signup');
-        const loginContainer = document.getElementById('login-form-container');
-        const signupContainer = document.getElementById('signup-form-container');
-        function normalizePhoneNumber(value) {
-            const digits = String(value || '').replace(/\D/g, '');
-            return digits.length > 10 ? digits.slice(-10) : digits;
-        }
-
-        function getOrdersForPhone(phone) {
-            const storedOrders = localStorage.getItem('av_orders');
-            if (!storedOrders) return [];
-            let orders;
-            try {
-                orders = JSON.parse(storedOrders);
-            } catch (error) {
-                console.error('Could not read saved orders:', error);
-                return [];
-            }
-            if (!Array.isArray(orders)) {
-                console.error('Saved order data is not a list.');
-                return [];
-            }
-            const normalizedPhone = normalizePhoneNumber(phone);
-            if (normalizedPhone.length < 7) return [];
-            return orders.filter(order =>
-                normalizePhoneNumber(order.phone) === normalizedPhone
-            );
-        }
-
-        function renderCustomerOrders(phone) {
+        function renderCustomerOrders(orders) {
             const container = document.getElementById('customer-orders');
-            const orders = getOrdersForPhone(phone);
             container.replaceChildren();
             if (!orders.length) {
                 const empty = document.createElement('p');
                 empty.className = 'rounded-lg bg-gray-50 p-4 text-sm text-gray-600';
-                empty.textContent = 'No orders found for this mobile number in this browser yet.';
+                empty.textContent = 'No orders found.';
                 container.append(empty);
                 return;
             }
@@ -155,7 +104,8 @@
                 orderId.textContent = `Order #${order.id || 'N/A'}`;
                 const orderDate = document.createElement('p');
                 orderDate.className = 'text-xs text-gray-500 mt-1';
-                const date = order.createdAt ? new Date(order.createdAt) : null;
+                const dateValue = order.created_at || order.createdAt;
+                const date = dateValue ? new Date(dateValue) : null;
                 orderDate.textContent = date && !Number.isNaN(date.getTime())
                     ? `Placed ${new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium', timeStyle: 'short' }).format(date)}`
                     : 'Purchase date unavailable';
@@ -170,7 +120,9 @@
                     ? order.items
                     : (Array.isArray(order.productIds)
                         ? order.productIds.map(id => ({ id, title: 'Product details unavailable' }))
-                        : []);
+                        : (order.product_name
+                            ? [{ title: order.product_name }]
+                            : []));
                 const list = document.createElement('ul');
                 list.className = 'space-y-2 border-t border-gray-100 pt-3';
                 items.forEach(item => {
@@ -204,121 +156,65 @@
                 });
                 if (items.length) card.append(list);
 
-                const total = document.createElement('p');
-                total.className = 'border-t border-gray-100 pt-3 text-right text-sm font-semibold';
-                const totalAmount = Number(order.total);
-                total.textContent = `Order total: ${Number.isFinite(totalAmount) ? `₹${totalAmount.toLocaleString('en-IN')}` : 'Unavailable'}`;
-                card.append(total);
+                if (order.total !== undefined && order.total !== null) {
+                    const total = document.createElement('p');
+                    total.className = 'border-t border-gray-100 pt-3 text-right text-sm font-semibold';
+                    const totalAmount = Number(order.total);
+                    total.textContent = `Order total: ${Number.isFinite(totalAmount) ? `₹${totalAmount.toLocaleString('en-IN')}` : 'Unavailable'}`;
+                    card.append(total);
+                }
                 container.append(card);
             });
         }
 
-        document.getElementById('refresh-orders-btn').addEventListener('click', () => {
-            renderCustomerOrders(document.getElementById('user-phone').dataset.phone);
-        });
-
-        window.addEventListener('storage', event => {
-            if (event.key === 'av_orders') {
-                renderCustomerOrders(document.getElementById('user-phone').dataset.phone);
-            }
-        });
-
-        function switchTab(mode) {
-            const showLogin = mode === 'login';
-            loginContainer.classList.remove('hidden');
-            signupContainer.classList.toggle('hidden', showLogin);
-            loginContainer.classList.toggle('hidden', !showLogin);
-            tabLogin.classList.toggle('border-black', showLogin);
-            tabLogin.classList.toggle('text-black', showLogin);
-            tabLogin.classList.toggle('border-transparent', !showLogin);
-            tabLogin.classList.toggle('text-gray-500', !showLogin);
-            tabSignup.classList.toggle('border-black', !showLogin);
-            tabSignup.classList.toggle('text-black', !showLogin);
-            tabSignup.classList.toggle('border-transparent', showLogin);
-            tabSignup.classList.toggle('text-gray-500', showLogin);
+        async function loadCustomerOrders(userId) {
+            const container = document.getElementById('customer-orders');
+            container.textContent = 'Loading your orders...';
+            const { data: orders, error } = await sb
+                .from('orders')
+                .select('*')
+                .eq('user_id', userId);
+            if (error) throw error;
+            renderCustomerOrders(orders || []);
         }
 
-        tabLogin.addEventListener('click', () => switchTab('login'));
-        tabSignup.addEventListener('click', () => switchTab('signup'));
-
-        document.getElementById('login-password-form').addEventListener('submit', async event => {
-            event.preventDefault();
-            setMessage('login', '', '');
-            const button = event.currentTarget.querySelector('button[type="submit"]');
+        document.getElementById('refresh-orders-btn').addEventListener('click', async event => {
+            const button = event.currentTarget;
+            if (!currentUserId) return;
             button.disabled = true;
-            button.textContent = 'Logging in...';
             try {
-                const { data, error } = await sb.auth.signInWithPassword({
-                    email: document.getElementById('login-password-email').value.trim(),
-                    password: document.getElementById('login-password-value').value
-                });
-                if (error) throw error;
-                await showDashboard(data.user);
+                await loadCustomerOrders(currentUserId);
             } catch (error) {
-                console.error('Could not log in with email and password:', error);
-                setMessage('login', 'error', error.message || 'Login failed. Please try again.');
+                console.error('Could not refresh customer orders:', error);
+                const container = document.getElementById('customer-orders');
+                container.textContent = `Could not load orders: ${error.message || 'Please try again.'}`;
             } finally {
                 button.disabled = false;
-                button.textContent = 'Login';
             }
         });
 
-        document.getElementById('signup-password-form').addEventListener('submit', async event => {
-            event.preventDefault();
-            setMessage('signup', '', '');
-            const button = event.currentTarget.querySelector('button[type="submit"]');
+        document.getElementById('logout-btn').addEventListener('click', async event => {
+            const button = event.currentTarget;
             button.disabled = true;
-            button.textContent = 'Creating account...';
+            button.textContent = 'Signing out...';
             try {
-                const { data, error } = await sb.auth.signUp({
-                    email: document.getElementById('signup-password-email').value.trim(),
-                    password: document.getElementById('signup-password-value').value,
-                    options: {
-                        emailRedirectTo: `${location.origin}${location.pathname}`
-                    }
-                });
+                const { error } = await sb.auth.signOut();
                 if (error) throw error;
-                if (data.session) {
-                    await showDashboard(data.user);
-                } else {
-                    setMessage('signup', 'success', 'Account created. Check your email to confirm your address, then log in.');
-                }
+                window.location.replace('index.html');
             } catch (error) {
-                console.error('Could not create an email account:', error);
-                setMessage('signup', 'error', error.message || 'Account creation failed. Please try again.');
-            } finally {
-                button.disabled = false;
-                button.textContent = 'Create Account';
-            }
-        });
-
-        function setMessage(mode, type, message) {
-            const error = document.getElementById(`${mode}-error`);
-            const success = document.getElementById(`${mode}-success`);
-            error.classList.add('hidden');
-            success.classList.add('hidden');
-            if (!message) return;
-            const target = type === 'error' ? error : success;
-            target.textContent = message;
-            target.classList.remove('hidden');
-        }
-
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            const { error } = await sb.auth.signOut();
-            if (error) {
+                console.error('Could not sign out:', error);
                 const dashboardError = document.getElementById('dashboard-error');
-                dashboardError.textContent = error.message;
+                dashboardError.textContent = error.message || 'Could not sign out. Please try again.';
                 dashboardError.classList.remove('hidden');
-                return;
+                button.disabled = false;
+                button.textContent = 'Sign Out';
             }
-            location.reload();
         });
 
         async function showDashboard(user) {
-            document.getElementById('login-form-container').classList.add('hidden');
-            document.getElementById('signup-form-container').classList.add('hidden');
+            currentUserId = user.id;
+            document.getElementById('auth-check-message').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
-            document.querySelector('.flex.border-b').classList.add('hidden');
 
             const dashboardError = document.getElementById('dashboard-error');
             dashboardError.classList.add('hidden');
@@ -327,24 +223,48 @@
                 dashboardError.textContent = `Could not load account details: ${error.message}`;
                 dashboardError.classList.remove('hidden');
             }
-            const name = data?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || '';
+            const name = data?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '';
+            document.getElementById('profile-avatar').textContent = name.charAt(0) || '?';
+            document.getElementById('profile-summary-email').textContent = user.email || 'Email unavailable';
             document.getElementById('user-name').textContent = name;
             document.getElementById('user-email').textContent = data?.email || user.email || 'N/A';
             const phone = data?.phone || user.phone || '';
             const phoneElement = document.getElementById('user-phone');
             phoneElement.textContent = phone || 'N/A';
             phoneElement.dataset.phone = phone;
-            renderCustomerOrders(phone);
+            try {
+                await loadCustomerOrders(user.id);
+            } catch (ordersError) {
+                console.error('Could not load customer orders:', ordersError);
+                const container = document.getElementById('customer-orders');
+                container.textContent = `Could not load orders: ${ordersError.message || 'Please try again.'}`;
+            }
         }
 
+        sb.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT' || !session) {
+                window.location.replace('index.html?auth=required');
+            }
+        });
+
         (async () => {
-            const { data, error } = await sb.auth.getSession();
+            let data;
+            let error;
+            try {
+                ({ data, error } = await sb.auth.getUser());
+            } catch (sessionError) {
+                error = sessionError;
+            }
             if (error) {
-                document.getElementById('login-error').textContent = error.message;
-                document.getElementById('login-error').classList.remove('hidden');
+                console.error('Could not verify the customer session:', error);
+                window.location.replace('index.html?auth=required&authError=1');
                 return;
             }
-            if (data.session) await showDashboard(data.session.user);
+            if (!data.user) {
+                window.location.replace('index.html?auth=required');
+                return;
+            }
+            await showDashboard(data.user);
         })();
     </script>
 </body>
